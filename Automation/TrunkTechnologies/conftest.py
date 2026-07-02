@@ -26,28 +26,32 @@ def page(request):
     p.stop()
 
 
-# @pytest.hookimpl(hookwrapper=True)
+@pytest.hookimpl(hookwrapper=True)
 
-# def pytest_runtest_makereport(item, call):
-#     outcome = yield
-#     report = outcome.get_result()
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    report = outcome.get_result()
 
-#     extra = getattr(report, "extra", [])
+    extra = getattr(report, "extra", [])
 
-#     if report.when == "call" and report.failed:
-#         page = item.funcargs.get("page")
+    if report.when == "call" and report.failed:
+        page = item.funcargs.get("page")
 
-#         if page:
-#             screenshots_dir = Path("screenshots")
-#             screenshots_dir.mkdir(exist_ok=True)
+        if page:
+            screenshots_dir = Path("screenshots")
+            screenshots_dir.mkdir(exist_ok=True)
 
-#             file_name = screenshots_dir / f"{item.name}.png"
+            file_name = screenshots_dir / f"{item.name}.png"
 
-#             page.screenshot(path=str(file_name))
+            page.screenshot(path=str(file_name))
 
-#             extra.append(pytest_html.extras.image(str(file_name)))
+            extra.append(pytest_html.extras.image(str(file_name)))
 
-#         report.extra = extra
+        report.extra = extra
+
+
+
+
 
     # @pytest.hookimpl(hookwrapper=True)
 
@@ -78,54 +82,54 @@ def page(request):
 
 
 
-    import shutil
-    from pathlib import Path
-    import pytest
+    # import shutil
+    # from pathlib import Path
+    # import pytest
 
-    @pytest.hookimpl(hookwrapper=True)
-    def pytest_runtest_makereport(item, call):
-        outcome = yield
-        report = outcome.get_result()
+    # @pytest.hookimpl(hookwrapper=True)
+    # def pytest_runtest_makereport(item, call):
+    #     outcome = yield
+    #     report = outcome.get_result()
 
-        extra = getattr(report, "extra", [])
+    #     extra = getattr(report, "extra", [])
 
-        if report.when == "call" and report.failed:
-            page = item.funcargs.get("page")
+    #     if report.when == "call" and report.failed:
+    #         page = item.funcargs.get("page")
 
-            if page:
-                screenshots_dir = Path("screenshots")
-                screenshots_dir.mkdir(exist_ok=True)
+    #         if page:
+    #             screenshots_dir = Path("screenshots")
+    #             screenshots_dir.mkdir(exist_ok=True)
 
-                file_name = screenshots_dir / f"{item.name}.png"
+    #             file_name = screenshots_dir / f"{item.name}.png"
 
-                page.screenshot(path=str(file_name))
+    #             page.screenshot(path=str(file_name))
 
-                extra.append(pytest_html.extras.image(str(file_name)))
+    #             extra.append(pytest_html.extras.image(str(file_name)))
 
-            report.extra = extra
-            item.call_report = report  # Store reference to report for the teardown phase
+    #         report.extra = extra
+    #         item.call_report = report  # Store reference to report for the teardown phase
 
-        # During teardown, the browser context is closed, so the video file is ready on disk
-        if report.when == "teardown" and hasattr(item, "call_report"):
-            page = item.funcargs.get("page")
-            if page and page.video:
-                try:
-                    video_path = page.video.path()
-                    if Path(video_path).exists():
-                        screenshots_dir = Path("screenshots")
-                        screenshots_dir.mkdir(exist_ok=True)
+    #     # During teardown, the browser context is closed, so the video file is ready on disk
+    #     if report.when == "teardown" and hasattr(item, "call_report"):
+    #         page = item.funcargs.get("page")
+    #         if page and page.video:
+    #             try:
+    #                 video_path = page.video.path()
+    #                 if Path(video_path).exists():
+    #                     screenshots_dir = Path("screenshots")
+    #                     screenshots_dir.mkdir(exist_ok=True)
 
-                        # Copy the video to the screenshots folder
-                        dest_video = screenshots_dir / f"{item.name}.webm"
-                        shutil.copy(video_path, dest_video)
+    #                     # Copy the video to the screenshots folder
+    #                     dest_video = screenshots_dir / f"{item.name}.webm"
+    #                     shutil.copy(video_path, dest_video)
 
-                        # Attach the copied video to the call report
-                        item.call_report.extra.append(
-                            pytest_html.extras.html(
-                                f'<video width="320" height="240" controls>'
-                                f'  <source src="{dest_video}" type="video/webm">'
-                                f'</video>'
-                            )
-                        )
-                except Exception as e:
-                    print(f"\n[Warning] Failed to attach video: {e}")
+    #                     # Attach the copied video to the call report
+    #                     item.call_report.extra.append(
+    #                         pytest_html.extras.html(
+    #                             f'<video width="320" height="240" controls>'
+    #                             f'  <source src="{dest_video}" type="video/webm">'
+    #                             f'</video>'
+    #                         )
+    #                     )
+    #             except Exception as e:
+    #                 print(f"\n[Warning] Failed to attach video: {e}")
