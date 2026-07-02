@@ -1,0 +1,5 @@
+python -m venv venv
+venv\Scripts\activate
+pip install playwright
+playwright install
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser

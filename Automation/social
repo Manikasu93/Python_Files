@@ -1,0 +1,74 @@
+from playwright.sync_api import sync_playwright
+
+with sync_playwright() as p:
+    
+    browser = p.chromium.launch(headless=False)
+    page=browser.new_page()
+
+    page.goto("https://www.tranktechnologies.com/") 
+
+#Social Media pages
+
+
+
+    cmsWebsite=page.locator('//a[@href="https://www.tranktechnologies.com/cms-website-development-company"]')
+    customWebPortaDev=page.locator('//a[@href="https://www.tranktechnologies.com/custom-web-portal-development-company"]')
+    mobileAppDesign=page.locator('//a[@href="https://www.tranktechnologies.com/mobile-app-design-company"]')
+    responsiveWebDesig=page.locator('//a[@href="https://www.tranktechnologies.com/responsive-web-design-company"]')
+    brandIdentityDesign=page.locator('//a[@href="https://www.tranktechnologies.com/brand-identity-design-services-company"]')
+    iosAppDev=page.locator('//a[@href="https://www.tranktechnologies.com/ios-mobile-app-development-company"]')
+    hybridMobileapp=page.locator('//a[@href="https://www.tranktechnologies.com/hybrid-mobile-app-development-company"]')
+    crossPlatfromApp=page.locator('//a[@href="https://www.tranktechnologies.com/cross-platform-mobile-app-development-company"]')
+    progressiveWebApp=page.locator('//a[@href="https://www.tranktechnologies.com/progressive-web-app-development-company"]')
+    logodesign=page.locator('//a[@href="https://www.tranktechnologies.com/logo-design-company"]')
+    bannerdesign=page.locator('//a[@href="https://www.tranktechnologies.com/banner-design-company"]')
+    packgingDesign=page.locator('//a[@href="https://www.tranktechnologies.com/packaging-design-company"]')
+    cardDesign=page.locator('//a[@href="https://www.tranktechnologies.com/business-cards-design-company"]')
+
+    socail_list=[cmsWebsite,customWebPortaDev,mobileAppDesign,responsiveWebDesig,brandIdentityDesign,iosAppDev,hybridMobileapp,crossPlatfromApp,progressiveWebApp,logodesign,bannerdesign,packgingDesign,cardDesign]
+    print("Sub Elements Social Media pages")
+    for index,locator in enumerate(socail_list,start=1):
+        locator.click()
+        page.wait_for_timeout(2000)
+        page.go_back()
+        # Print before clicking to know what the script is attempting
+        print(f"[{index}/{len(socail_list)}] Clicking locator: {locator}")
+        
+        locator.click()
+        page.wait_for_timeout(5000)
+        
+        print(f"Successfully loaded page for locator {index}. Navigating back...")
+        page.go_back()
+        
+    print("All pages processed successfully!")
+
+    arrow1=page.locator('(//i[@class="fa fa-chevron-down text-red-2"])[1]').click()
+    page.wait_for_timeout(2000)
+    print("click arrow1")
+    with page.context.expect_page() as new_page_info:
+        page.locator('//a[@href="https://www.tranktechnologies.com/website-development-company"]').click()
+        print("clicked website")
+    new_tab = new_page_info.value
+    new_tab.wait_for_load_state()
+    page.bring_to_front()
+    page.wait_for_timeout(2000)
+
+    arrow2=page.locator('(//i[@class="fa fa-chevron-down text-red-2"])[2]').click()
+    page.wait_for_timeout(2000)
+    print("Clcked Arrow2")
+    with page.context.expect_page() as new_page_info:
+        androidAppDev=page.locator('//a[@href="https://www.tranktechnologies.com/android-app-development-company"]').click()
+        print("clicked android")
+    new_tab = new_page_info.value
+    new_tab.wait_for_load_state()
+    page.bring_to_front()
+    page.wait_for_timeout(2000)
+    
+    arrow3=page.locator('(//i[@class="fa fa-chevron-down text-red-2"])[2]').click()
+    with page.context.expect_page() as new_page_info:
+        appDeve=page.locator('(//a[@href="https://www.tranktechnologies.com/app-development-company"])[2]').click()
+        print("clicked company")
+    new_tab = new_page_info.value
+    new_tab.wait_for_load_state()
+    page.bring_to_front()
+    page.wait_for_timeout(2000)
