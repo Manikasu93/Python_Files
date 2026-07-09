@@ -1,33 +1,46 @@
+import shutil
 from pathlib import Path
+
 import pytest
-from playwright.sync_api import sync_playwright
 import pytest_html
+from playwright.sync_api import sync_playwright
 
 from config import url
 
-@pytest.fixture(scope="session")
+
+def _ensure_output_dirs() -> None:
+    Path("screenshots").mkdir(exist_ok=True)
+    Path("videos").mkdir(exist_ok=True)
 
 
-def page(request):
-    
+@pytest.fixture
+def page():
+    _ensure_output_dirs()
+
     p = sync_playwright().start()
-    browser=p.chromium.launch(headless=False)
-    context = browser.new_context(ignore_https_errors=True)
+    browser = p.chromium.launch(headless=False)
+    context = browser.new_context(
+        ignore_https_errors=True,
+        record_video_dir=str(Path("videos")),
+        record_video_size={"width": 1280, "height": 720},
+    )
     page = context.new_page()
 
     page.goto(url)
     page.wait_for_load_state("load")
-    
-    
+
     yield page
 
-    context.close()
-    browser.close()
-    p.stop()
+    try:
+        context.close()
+    except Exception:
+        pass
+    finally:
+        browser.close()
+        p.stop()
 
 
 @pytest.hookimpl(hookwrapper=True)
-
 def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
@@ -38,98 +51,33 @@ def pytest_runtest_makereport(item, call):
         page = item.funcargs.get("page")
 
         if page:
-            screenshots_dir = Path("screenshots")
-            screenshots_dir.mkdir(exist_ok=True)
+            _ensure_output_dirs()
 
-            file_name = screenshots_dir / f"{item.name}.png"
+            screenshot_path = Path("screenshots") / f"{item.name}.png"
+            page.screenshot(path=str(screenshot_path))
+            extra.append(pytest_html.extras.image(str(screenshot_path)))
 
-            page.screenshot(path=str(file_name))
+            try:
+                context = page.context
+                context.close()
+            except Exception as exc:
+                print(f"[Warning] Could not close context before reading video: {exc}")
 
-            extra.append(pytest_html.extras.image(str(file_name)))
+            try:
+                video = getattr(page, "video", None)
+                if video:
+                    video_path = video.path()
+                    if video_path and Path(video_path).exists():
+                        video_name = Path("videos") / f"{item.name}.webm"
+                        shutil.copy2(video_path, video_name)
+                        extra.append(
+                            pytest_html.extras.html(
+                                f'<video width="320" height="240" controls><source src="{video_name}" type="video/webm"></video>'
+                            )
+                        )
+                    else:
+                        print("[Warning] No video was recorded for this failure.")
+            except Exception as exc:
+                print(f"[Warning] Failed to attach video: {exc}")
 
         report.extra = extra
-
-
-
-
-
-    # @pytest.hookimpl(hookwrapper=True)
-
-    # def pytest_runtest_makereport(item, call):
-    #     outcome = yield
-    #     report = outcome.get_result()
-
-    #     extra = getattr(report, "extra", [])
-
-    #     if report.when == "call" and report.failed:
-    #         page = item.funcargs.get("page")
-
-    #         if page:
-    #             screenshots_dir = Path("screenshots")
-    #             screenshots_dir.mkdir(exist_ok=True)
-
-    #             file_name = screenshots_dir / f"{item.name}.png"
-
-    #             page.screenshot(path=str(file_name))
-
-    #             extra.append(pytest_html.extras.image(str(file_name)))
-
-    #             # Retrieve video path and append to report
-    #             if page.video:
-    #                 extra.append(pytest_html.extras.html(f'<video width="320" height="240" controls><source src="{page.video.path()}"type="video/webm"></video>'))
-
-    #         report.extra = extra
-
-
-
-    # import shutil
-    # from pathlib import Path
-    # import pytest
-
-    # @pytest.hookimpl(hookwrapper=True)
-    # def pytest_runtest_makereport(item, call):
-    #     outcome = yield
-    #     report = outcome.get_result()
-
-    #     extra = getattr(report, "extra", [])
-
-    #     if report.when == "call" and report.failed:
-    #         page = item.funcargs.get("page")
-
-    #         if page:
-    #             screenshots_dir = Path("screenshots")
-    #             screenshots_dir.mkdir(exist_ok=True)
-
-    #             file_name = screenshots_dir / f"{item.name}.png"
-
-    #             page.screenshot(path=str(file_name))
-
-    #             extra.append(pytest_html.extras.image(str(file_name)))
-
-    #         report.extra = extra
-    #         item.call_report = report  # Store reference to report for the teardown phase
-
-    #     # During teardown, the browser context is closed, so the video file is ready on disk
-    #     if report.when == "teardown" and hasattr(item, "call_report"):
-    #         page = item.funcargs.get("page")
-    #         if page and page.video:
-    #             try:
-    #                 video_path = page.video.path()
-    #                 if Path(video_path).exists():
-    #                     screenshots_dir = Path("screenshots")
-    #                     screenshots_dir.mkdir(exist_ok=True)
-
-    #                     # Copy the video to the screenshots folder
-    #                     dest_video = screenshots_dir / f"{item.name}.webm"
-    #                     shutil.copy(video_path, dest_video)
-
-    #                     # Attach the copied video to the call report
-    #                     item.call_report.extra.append(
-    #                         pytest_html.extras.html(
-    #                             f'<video width="320" height="240" controls>'
-    #                             f'  <source src="{dest_video}" type="video/webm">'
-    #                             f'</video>'
-    #                         )
-    #                     )
-    #             except Exception as e:
-    #                 print(f"\n[Warning] Failed to attach video: {e}")

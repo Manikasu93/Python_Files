@@ -38,48 +38,51 @@ class about:
      
         for index,locator in enumerate(self.socail_list,start=1):
             locator.click()
-            self.page.wait_for_load_state(state="load")
+            self.page.wait_for_timeout(2000)
             self.page.go_back()
+            self.page.wait_for_timeout(2000)
             # Print before clicking to know what the script is attempting
             print(f"[{index}/{len(self.socail_list)}] Clicking locator: {locator}")
             
             locator.click()
-            self.page.wait_for_load_state(state="load")
+            self.page.wait_for_timeout(2000)
             
             print(f"Successfully loaded page for locator {index}. Navigating back...")
             self.page.go_back()
             
         print("All pages processed successfully!")
 
-        self.arrow1=page.locator('(//i[@class="fa fa-chevron-down text-red-2"])[1]').click()
-        self.page.wait_for_load_state(state="load")
+        self.arrow1=self.page.locator('(//i[@class="fa fa-chevron-down text-red-2"])[1]').click()
+        self.page.wait_for_timeout(2000)
         print("click arrow1")
         with self.page.context.expect_page() as new_page_info:
             self.page.locator('//a[@href="https://www.tranktechnologies.com/website-development-company"]').click()
             print("clicked website")
         new_tab = new_page_info.value
-        new_tab.wait_for_load_state()
+        new_tab.page.wait_for_timeout(2000)
         self.page.bring_to_front()
-        self.page.wait_for_load_state(state="load")
+        self.page.wait_for_timeout(2000)
 
-        self.arrow2=page.locator('(//i[@class="fa fa-chevron-down text-red-2"])[2]').click()
-        self.page.wait_for_load_state(state="load")
+        self.arrow2=self.page.locator('(//i[@class="fa fa-chevron-down text-red-2"])[2]').click()
+        self.page.wait_for_timeout(2000)
         print("Clcked Arrow2")
         with self.page.context.expect_page() as new_page_info:
-            self.androidAppDev=page.locator('//a[@href="https://www.tranktechnologies.com/android-app-development-company"]').click()
+            self.androidAppDev=self.page.locator('//a[@href="https://www.tranktechnologies.com/android-app-development-company"]').click()
             print("clicked android")
         new_tab = new_page_info.value
-        new_tab.wait_for_load_state()
+        new_tab.page.wait_for_timeout(2000)
         self.page.bring_to_front()
         self.page.wait_for_load_state(state="load")
 
-        self.arrow3=page.locator('(//i[@class="fa fa-chevron-down text-red-2"])[3]').click()
+        self.arrow3=self.page.locator('(//i[@class="fa fa-chevron-down text-red-2"])[3]').click()
+        self.page.wait_for_load_state(state="load")
+
         with self.page.context.expect_page() as new_page_info:
-            self.appDeve=page.locator('(//a[@href="https://www.tranktechnologies.com/app-development-company"])[2]').click()
+            self.appDeve=self.page.locator('(//a[@href="https://www.tranktechnologies.com/app-development-company"])[2]').click()
             print("clicked company")
 
         new_tab = new_page_info.value
-        new_tab.wait_for_load_state()
+        new_tab.page.wait_for_timeout(2000)
         self.page.bring_to_front()
         self.page.wait_for_load_state(state="load")
 
