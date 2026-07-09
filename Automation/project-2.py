@@ -13,7 +13,5 @@ with sync_playwright() as p:
     page.locator('//input[@name="password"]').fill("Mk@123")
     page.wait_for_timeout(2000)
     page.locator('//input[@id="btn_login"]').click()
-    page.wait_for_timeout(2000)
+    page.wait_for_load_state(state="load")
     
-
-
