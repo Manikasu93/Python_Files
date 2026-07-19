@@ -11,7 +11,11 @@ with sync_playwright() as p:
     page.locator('(//button[@class="sf-button"])[2]').click()
     page.locator('//input[@name="username"]').fill("manikasu777@gmail.com")
     page.locator('//input[@name="password"]').fill("Mk@123")
-    page.wait_for_timeout(2000)
-    page.locator('//input[@id="btn_login"]').click()
-    page.wait_for_load_state(state="load")
     
+    page.locator('//input[@id="btn_login"]').click()
+    page.locator('(//li[@class="nav--dropdown"])[1]').hover()
+    page.locator('(//li[@class="Mainlist--links--item"])[2]').click()
+
+
+    page.wait_for_timeout(3000)
+
